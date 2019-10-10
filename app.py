@@ -23,6 +23,7 @@ class Movie(db.Model):
     title = db.Column(db.String(60))
     year = db.Column(db.String(4))
 
+
 @app.cli.command()
 def forge():
     db.create_all()
@@ -51,21 +52,21 @@ def forge():
     click.echo('Done.')
 
 
+@app.context_processor
+def inject_user():
+    user = User.query.first()
+    return dict(user=user)
+
+
 @app.route('/')
 def index():
-    user = User.query.first()
     movies = Movie.query.all()
-    return render_template('index.html', user=user, movies=movies)
+    return render_template('index.html', movies=movies)
 
 
-@app.route('/home')
-def hello():
-    return "Welcome to watchlist"
-
-
-@app.route('/user/<name>')
-def user_page(name):
-    return f"Welcome, {name}!"
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', ), 404
 
 
 @app.route('/test')
