@@ -43,6 +43,15 @@ def load_user(user_id):
 
 
 @app.cli.command()
+@click.option('--drop', is_flag=True, help='Create after drop')
+def initdb(drop):
+    if drop:
+        db.drop_all()
+    db.create_all()
+    click.echo('Initialized database.')
+
+
+@app.cli.command()
 @click.option('--username', prompt=True, help='The username to login.')
 @click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True, help='The password used to login')
 def admin(username, password):
@@ -107,7 +116,7 @@ def index():
 
         title = request.form.get('title')
         year = request.form.get('year')
-        if not title or not year or not len(year) > 4 or len(title) > 60:
+        if (not title) or (not year) or (len(year) > 4) or (len(title) > 60):
             flash('Invalid input.')
             return redirect(url_for('index'))
         movie = Movie(title=title, year=year)
@@ -133,7 +142,7 @@ def login():
         user = User.query.first()
         if username == user.username and user.validate_password(password):
             login_user(user)
-            flash('Login sucess.')
+            flash('Login success.')
             return redirect(url_for('index'))
 
         flash('Invalid username or password.')
@@ -159,8 +168,8 @@ def edit(movie_id):
         title = request.form.get('title')
         year = request.form.get('year')
 
-        if not title or not year or not len(year) > 4 or not len(title) > 60:
-            flash('Invalid intpu.')
+        if (not title) or (not year) or (len(year) > 4) or (len(title) > 60):
+            flash('Invalid input.')
             return redirect(url_for('edit', movie_id=movie_id))
 
         movie.title = title
